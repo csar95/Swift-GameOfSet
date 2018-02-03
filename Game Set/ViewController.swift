@@ -41,7 +41,21 @@ class ViewController: UIViewController {
     }
     
     @IBAction func cheat(_ sender: Any) {
+        let listOfColors = [UIColor.red.cgColor, UIColor.orange.cgColor, UIColor.blue.cgColor, UIColor.cyan.cgColor, UIColor.magenta.cgColor]
         
+        if let indecesOfSets = game.getIndecesOfSets() {
+            for iSet in indecesOfSets.indices {
+                let color = listOfColors[iSet % 5]
+                for index in indecesOfSets[iSet]
+                {
+                    cardButtons[index].layer.borderWidth = 3.0
+                    cardButtons[index].layer.borderColor = color
+                }
+            }
+        }
+        else {
+            print("There are no sets on board")
+        }
     }
     
     @IBAction func addMoreCards(_ sender: Any) {

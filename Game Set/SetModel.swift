@@ -52,7 +52,7 @@ class SetModel {
                             if (countOfNotNil(in: board) > 12) {
                                 // Remove cards that form set
                                 for card in selectedCards {
-                                    if let index = getIndex(of: card) {
+                                    if let index = getIndexOnBoard(of: card) {
                                         board[index] = nil
                                     }
                                     else {
@@ -63,7 +63,7 @@ class SetModel {
                             else {
                                 // Subtitute cards in set for new ones from the deck
                                 for card in selectedCards {
-                                    if let index = getIndex(of: card) {
+                                    if let index = getIndexOnBoard(of: card) {
                                         addCardToBoard(at: index)
                                     }
                                     else {
@@ -87,6 +87,36 @@ class SetModel {
                 points -= 1
             }
         }
+    }
+    
+    func getIndecesOfSets () -> [[Int]]? {
+        let setsOnBoard = lookForSetsOnBoard()
+        
+        var indecesOfSets = [[Int]]()
+        // In case there is a set
+        if setsOnBoard.count > 0 {
+            for set in setsOnBoard {
+                var indeces = [Int]()
+                for card in set {
+                    indeces.append(getIndexOnBoard(of: card)!)
+                }
+                indecesOfSets.append(indeces)
+            }
+        }
+        return indecesOfSets.count > 0 ? indecesOfSets : nil
+    }
+    
+    private func lookForSetsOnBoard () -> [[Card]] {
+        let allCombosOfCards = getAllCombos(from: board)
+        
+        var setsOnBoard = [[Card]]()
+        for combo in allCombosOfCards
+        {
+            if checkSet(in: combo) {
+                setsOnBoard.append(combo)
+            }
+        }
+        return setsOnBoard
     }
     
     func add3MoreCards () {
@@ -130,7 +160,7 @@ class SetModel {
         return checkForColor(in: cards) && checkForShape(in: cards) && checkForShade(in: cards) && checkForTime(in: cards)
     }
     
-    private func getIndex(of card: Card) -> Int? {
+    private func getIndexOnBoard(of card: Card) -> Int? {
         for index in 0..<board.count {
             if (board[index] != nil && board[index] == card) {
                 return index
@@ -218,7 +248,7 @@ class SetModel {
         deck.append(card)
     }
     
-    private func getAllCombos(from board: [Card?], of size: Int) -> [[Card]] {
+    private func getAllCombos(from board: [Card?]) -> [[Card]] {
         // Get cards on board
         var cardsBeingPlayed = [Card]()
         for i in board.indices {
@@ -232,7 +262,7 @@ class SetModel {
             indices.append(pos)
         }
         
-        let combosOfIndeces = indices.getCombinationsWithoutRepetition(of: 4)
+        let combosOfIndeces = indices.getCombinationsWithoutRepetition(of: 3)
         
         var allCombosOfCards = [[Card]]()
         for combo in combosOfIndeces
