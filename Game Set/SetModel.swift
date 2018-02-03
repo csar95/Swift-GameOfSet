@@ -72,6 +72,21 @@ class SetModel {
                                 }
                             }
                         }
+                        // If deck is empty
+                        else {
+                            // Remove cards that form set
+                            for card in selectedCards {
+                                if let index = getIndexOnBoard(of: card) {
+                                    board[index] = nil
+                                }
+                                else {
+                                    print("ERROR: Selected card not found in board")
+                                }
+                            }
+                            if lookForSetsOnBoard().count == 0 {
+                                print("CONGRATULATIONS, YOU WON!!")
+                            }
+                        }
                         points += 3
                     }
                     else {
