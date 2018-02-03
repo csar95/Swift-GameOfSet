@@ -47,9 +47,7 @@ class SetModel {
                 
                 if (selectedCards.count == 3) {
                     // Check if selected cards form a set
-                    let isSet = checkForColor(in: selectedCards) && checkForShape(in: selectedCards) && checkForShade(in: selectedCards) && checkForTime(in: selectedCards)
-                    
-                    if isSet {
+                    if checkSet(in: selectedCards) {
                         if !deck.isEmpty {
                             if (countOfNotNil(in: board) > 12) {
                                 // Remove cards that form set
@@ -126,6 +124,10 @@ class SetModel {
             if let _ = array[i] { count += 1 }
         }
         return count
+    }
+    
+    private func checkSet(in cards: [Card]) -> Bool{
+        return checkForColor(in: cards) && checkForShape(in: cards) && checkForShade(in: cards) && checkForTime(in: cards)
     }
     
     private func getIndex(of card: Card) -> Int? {
@@ -216,6 +218,35 @@ class SetModel {
         deck.append(card)
     }
     
+    private func getAllCombos(from board: [Card?], of size: Int) -> [[Card]] {
+        // Get cards on board
+        var cardsBeingPlayed = [Card]()
+        for i in board.indices {
+            if let card = board[i] {
+                cardsBeingPlayed.append(card)
+            }
+        }
+        
+        var indices = [Int]()
+        for pos in 0..<cardsBeingPlayed.count {
+            indices.append(pos)
+        }
+        
+        let combosOfIndeces = indices.getCombinationsWithoutRepetition(of: 4)
+        
+        var allCombosOfCards = [[Card]]()
+        for combo in combosOfIndeces
+        {
+            var comboOfCards = [Card]()
+            for index in combo {
+                comboOfCards.append(cardsBeingPlayed[index])
+            }
+            allCombosOfCards.append(comboOfCards)
+        }
+        
+        return allCombosOfCards
+    }
+    
     // It probably wants to keep track of which cards have already been matched.
 }
 
@@ -273,4 +304,70 @@ extension SetModel: CheckFeaturesProtocol {
             return false
         }
     }
+}
+
+extension Array where Element == Int {
+    
+    func getCombinationsWithoutRepetition(of length: Int) -> [[Element]] {
+        
+        let size = self.count
+        var auxList = [[Element]]()
+        var auxList2 = [[Element]]()
+        for pos in 0..<size-1 {
+            auxList.append([pos])
+        }
+
+        for time in 1...length-1 {
+            // If time is odd
+            if (time % 2 != 0)
+            {
+                auxList2.removeAll()
+                for i in 0..<auxList.count
+                {
+                    if (auxList[i].last != size-1)
+                    {
+                        var aux = [Element]()
+                        for j in (auxList[i].last!+1)..<size
+                        {
+                            for elem in auxList[i] {
+                                aux.append(elem)
+                            }
+                            aux.append(j)
+                            auxList2.append(aux)
+                            aux.removeAll()
+                        }
+                    }
+                }
+            }
+            // If time is even
+            else
+            {
+                auxList.removeAll()
+                for i in 0..<auxList2.count
+                {
+                    if (auxList2[i].last != size-1)
+                    {
+                        var aux = [Element]()
+                        for j in (auxList2[i].last!+1)..<size
+                        {
+                            for elem in auxList2[i] {
+                                aux.append(elem)
+                            }
+                            aux.append(j)
+                            auxList.append(aux)
+                            aux.removeAll()
+                        }
+                    }
+                }
+            }
+        }
+        
+        if (length % 2 == 0) {
+            return auxList2
+        }
+        else {
+            return auxList
+        }
+    }
+    
 }

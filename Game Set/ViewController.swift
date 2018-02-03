@@ -14,6 +14,7 @@ class ViewController: UIViewController {
     
     @IBOutlet weak var newGameButton: UIButton!
     @IBOutlet weak var dealMoreCardsButton: UIButton!
+    @IBOutlet weak var cheatButton: UIButton!
     @IBOutlet var cardButtons: [UIButton]!
     
     @IBOutlet weak var pointsLabel: UILabel!
@@ -23,6 +24,7 @@ class ViewController: UIViewController {
         
         newGameButton.layer.cornerRadius = 15
         dealMoreCardsButton.layer.cornerRadius = 15
+        cheatButton.layer.cornerRadius = 15
         
         updateViewFromModel()
     }
@@ -36,6 +38,10 @@ class ViewController: UIViewController {
         else {
             print("Chosen card is not in cardButtons")
         }
+    }
+    
+    @IBAction func cheat(_ sender: Any) {
+        
     }
     
     @IBAction func addMoreCards(_ sender: Any) {
