@@ -11,20 +11,28 @@ import UIKit
 class ViewController: UIViewController {
 
     private var game: SetModel = SetModel()
+
+    private var iPhoneTimer: Timer!
+    private var iPhonePoints = 0
     
     @IBOutlet weak var newGameButton: UIButton!
+    @IBOutlet weak var playIPhoneButton: UIButton!
     @IBOutlet weak var dealMoreCardsButton: UIButton!
     @IBOutlet weak var cheatButton: UIButton!
     @IBOutlet var cardButtons: [UIButton]!
     
     @IBOutlet weak var pointsLabel: UILabel!
+    @IBOutlet weak var pointsIPhoneLabel: UILabel!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         newGameButton.layer.cornerRadius = 15
+        playIPhoneButton.layer.cornerRadius = 15
         dealMoreCardsButton.layer.cornerRadius = 15
         cheatButton.layer.cornerRadius = 15
+        
+        pointsIPhoneLabel.isHidden = true
         
         updateViewFromModel()
     }
@@ -40,17 +48,12 @@ class ViewController: UIViewController {
         }
     }
     
-    @IBAction func cheat(_ sender: Any) {
-        let listOfColors = [UIColor.red.cgColor, UIColor.orange.cgColor, UIColor.blue.cgColor, UIColor.cyan.cgColor, UIColor.magenta.cgColor]
-        
+    @IBAction func cheat(_ sender: UIButton) {
         if let indecesOfSets = game.getIndecesOfSets() {
-            for iSet in indecesOfSets.indices {
-                let color = listOfColors[iSet % 5]
-                for index in indecesOfSets[iSet]
-                {
-                    cardButtons[index].layer.borderWidth = 3.0
-                    cardButtons[index].layer.borderColor = color
-                }
+            for index in indecesOfSets[0]
+            {
+                cardButtons[index].layer.borderWidth = 3.0
+                cardButtons[index].layer.borderColor = UIColor.red.cgColor
             }
         }
         else {
@@ -58,14 +61,58 @@ class ViewController: UIViewController {
         }
     }
     
-    @IBAction func addMoreCards(_ sender: Any) {
+    @IBAction func addMoreCards(_ sender: UIButton) {
         game.add3MoreCards()
         updateViewFromModel()
     }
     
-    @IBAction func resetGame(_ sender: Any) {
+    @IBAction func resetGame(_ sender: UIButton) {
+        if let _ = iPhoneTimer {
+            iPhoneTimer.invalidate()
+        }
+        pointsIPhoneLabel.isHidden = true
         game.reset()
         updateViewFromModel()
+    }
+    
+    @IBAction func playAgainstIPhone(_ sender: UIButton) {
+        game.reset()
+        iPhonePoints = 0
+        pointsIPhoneLabel.isHidden = false
+        updateViewFromModel()
+        iPhoneTimer = Timer.scheduledTimer(withTimeInterval: TimeInterval(30.arc4random + 20), repeats: true, block: { _ in
+            self.playIPhone()
+            self.updateViewFromModel()
+        })
+    }
+    
+    private func playIPhone() {
+        if let setsOnBoard = self.game.getIndecesOfSets()
+        {
+            let randomSet = setsOnBoard.count.arc4random
+            if !self.game.deck.isEmpty {
+                if (self.game.countOfNotNil(in: self.game.board) > 12) {
+                    // Remove cards that form set
+                    for index in setsOnBoard[randomSet]{
+                        self.game.board[index] = nil
+                    }
+                }
+                else {
+                    for index in setsOnBoard[randomSet]{
+                        // Subtitute cards in set for new ones from the deck
+                        self.game.addCardToBoard(at: index)
+                    }
+                }
+            }
+                // If deck is empty
+            else {
+                // Remove cards that form set
+                for index in setsOnBoard[randomSet]{
+                    self.game.board[index] = nil
+                }
+            }
+        }
+        iPhonePoints += 3
     }
     
     private func updateViewFromModel() {
@@ -100,6 +147,7 @@ class ViewController: UIViewController {
         }
         
         pointsLabel.text = "Points: \(game.points)"
+        pointsIPhoneLabel.text = "iPhone: \(iPhonePoints)"
     }
     
 }

@@ -24,8 +24,8 @@ class SetModel {
     private(set) var selectedCards = [Card]()
     var deck = [Card]()
     
-    private(set) var board = [Card?]()
-    
+    var board = [Card?]()
+        
     init() {
         generateDeck()
         
@@ -84,21 +84,21 @@ class SetModel {
                                 }
                             }
                             if lookForSetsOnBoard().count == 0 {
-                                print("CONGRATULATIONS, YOU WON!!")
+                                print("GAME OVER!")
                             }
                         }
                         points += 3
                     }
                     else {
-                        points -= 5
+                        points -= 3
                     }
                     // Clear list of selected cards
                     selectedCards.removeAll()
                 }
             }
-                // If chosen card is already selected, deselect it
+            // If chosen card is already selected, deselect it
             else {
-                selectedCards.remove(at: selectedCards.index(of: chosenCard)! )
+                selectedCards.remove( at: selectedCards.index(of: chosenCard)! )
                 points -= 1
             }
         }
@@ -135,6 +135,10 @@ class SetModel {
     }
     
     func add3MoreCards () {
+        // Penalize pressing "3 More Cards" if there is a set available in the visible cards
+        if lookForSetsOnBoard().count != 0 {
+            points -= 5
+        }
         if (countOfNotNil(in: board) < 24 && !deck.isEmpty) {
             var numberOfCardsToAdd = 3
             for index in 0..<board.count {
@@ -184,7 +188,7 @@ class SetModel {
         return nil
     }
     
-    private func addCardToBoard (at index: Int?) {
+    func addCardToBoard (at index: Int?) {
         // Take random card from deck and put it on the board
         let randomIndex = deck.count.arc4random
         let randomCard = deck.remove(at: randomIndex)
